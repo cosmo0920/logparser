@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <cfloat>
 #include <memory>
 #include <algorithm>
@@ -25,10 +26,18 @@ std::unique_ptr<Summary> mkSummary(InputItr first, InputItr last) {
     double min = DBL_MAX;
     int size = 0;
     for(auto it = first; it != last; ++it) {
-        sum += *it;
-        max = std::max(max, *it);
-        min = std::min(min, *it);
+        double v = *it;
+        sum += v;
+        max = std::max(max, v);
+        min = std::min(min, v);
         ++size;
     }
     return std::unique_ptr<Summary>(new Summary(sum, max, min, size));
+}
+
+std::ostream& operator<<(std::ostream& os, Summary& summary) {
+    return os << "sum: " << summary.sum
+              << ", max: " << summary.max
+              << ", min: " << summary.min
+              << ", average: " << summary.average();
 }

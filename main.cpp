@@ -4,6 +4,7 @@
 #include "java_log.hpp"
 #include "profiler.hpp"
 #include "summary.hpp"
+#include "boost/iterator/transform_iterator.hpp"
 
 using namespace std;
 
@@ -20,6 +21,7 @@ bool startsWith(const char* str, const string& comp) {
 int main() {
     char line[Size];
     vector<string> lines;
+    vector<unique_ptr<Profiler>> profilers;
     bool profile = false;
     while(cin.getline(line, Size)) {
         if(profile) {
@@ -27,7 +29,7 @@ int main() {
                 lines.push_back(line);
             } else {
                 auto prof = mkProfiler(lines.begin(), lines.end());
-                cout << *prof << endl;
+                profilers.push_back(prof);
                 profile = false;
                 lines.clear();
             }
@@ -39,5 +41,10 @@ int main() {
             }
         }
     }
+    auto totalF = [](Profiler p) { return p.total; };
+    auto it = boost::make_transform_iterator(profilers.begin(), totalF);
+    auto it_end = boost::make_transform_iterator(profilers.end(), totalF);
+    auto totalSummary = mkSummary(it, it_end);
+    cout << *totalSummary << endl;
     return EXIT_SUCCESS;
 }
